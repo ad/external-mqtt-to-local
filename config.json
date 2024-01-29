@@ -1,5 +1,5 @@
 {
-    "version": "0.0.1",
+    "version": "0.0.2",
     "name": "external-mqtt-to-local",
     "slug": "external-mqtt-to-local",
     "description": "",
@@ -13,14 +13,15 @@
     ],
     "init": false,
     "options": {
-      "DEVICEID": "car",
+      "DEVICEID": "person",
       "HOMEASSISTANTURL": "",
       "HOMEASSISTANTTOKEN": "",
       "BROKERURL": "",
       "BROKERPORT": 1883,
       "BROKERUSERNAME": "",
       "BROKERPASSWORD": "",
-      "BROKERTOPIC": ""
+      "BROKERTOPIC": "",
+      "DEBUG": false
     },
     "schema": {
       "DEVICEID": "str",
@@ -30,6 +31,7 @@
       "BROKERPORT": "int",
       "BROKERUSERNAME": "str",
       "BROKERPASSWORD": "str",
-      "BROKERTOPIC": "str"
+      "BROKERTOPIC": "str",
+      "DEBUG": "bool"
     }
 }

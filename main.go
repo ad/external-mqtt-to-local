@@ -46,12 +46,19 @@ type Data struct {
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %q from topic: %s\n", msg.Payload(), msg.Topic())
+	if config.Debug {
+		fmt.Printf("Received message: %q from topic: %s\n", msg.Payload(), msg.Topic())
+	}
 
 	data := &Data{}
 	errUnmarshal := json.Unmarshal(msg.Payload(), data)
 	if errUnmarshal != nil {
 		fmt.Printf("errUnmarshal: %s for %q", errUnmarshal.Error(), msg.Payload())
+	}
+
+	// skip bad data
+	if data.Type != "location" || data.Lat == 0.00 || data.Lon == 0.00 {
+		return
 	}
 
 	haItem := HAItem{
@@ -72,11 +79,15 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected")
+	if config.Debug {
+		fmt.Println("Connected")
+	}
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect lost: %v\n", err)
+	if config.Debug {
+		fmt.Printf("Connect lost: %v\n", err)
+	}
 }
 
 func main() {
@@ -111,7 +122,10 @@ func main() {
 		done <- true
 	}()
 
-	fmt.Println("awaiting signal")
+	if config.Debug {
+		fmt.Println("awaiting signal")
+	}
+
 	<-done
 	fmt.Println("exiting")
 
@@ -122,7 +136,9 @@ func sub(client mqtt.Client) {
 	topic := config.BrokerTopic
 	token := client.Subscribe(topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s\n", topic)
+	if config.Debug {
+		fmt.Printf("Subscribed to topic: %s\n", topic)
+	}
 }
 
 // func pub(client mqtt.Client) {

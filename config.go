@@ -24,6 +24,7 @@ type Config struct {
 	BrokerUsername string `json:"BROKERUSERNAME"`
 	BrokerPassword string `json:"BROKERPASSWORD"`
 	BrokerTopic    string `json:"BROKERTOPIC"`
+	Debug          bool   `json:"DEBUG"`
 }
 
 var config = &Config{}
@@ -55,6 +56,8 @@ func InitConfig() {
 		flag.StringVar(&config.BrokerPassword, "BROKERPASSWORD", lookupEnvOrString("BROKERPASSWORD", config.BrokerPassword), "Broker Password")
 		flag.StringVar(&config.BrokerTopic, "BROKERTOPIC", lookupEnvOrString("BROKERTOPIC", config.BrokerTopic), "Broker Topic")
 
+		flag.BoolVar(&config.Debug, "DEBUG", lookupEnvOrBool("DEBUG", config.Debug), "Debug")
+
 		flag.Parse()
 	}
 
@@ -74,6 +77,15 @@ func lookupEnvOrString(key, defaultVal string) string {
 func lookupEnvOrInt(key string, defaultVal int) int {
 	if val, ok := os.LookupEnv(key); ok {
 		if x, err := strconv.Atoi(val); err == nil {
+			return x
+		}
+	}
+	return defaultVal
+}
+
+func lookupEnvOrBool(key string, defaultVal bool) bool {
+	if val, ok := os.LookupEnv(key); ok {
+		if x, err := strconv.ParseBool(val); err == nil {
 			return x
 		}
 	}

@@ -42,10 +42,16 @@ func processHomeassistant(haItem HAItem) error {
 
 	fmt.Println("request body:", string(jsonStr))
 	if resp.StatusCode != 200 {
-		fmt.Println("response Status:", resp.Status)
-		fmt.Println("response Headers:", resp.Header)
+		if config.Debug {
+			fmt.Println("response Status:", resp.Status)
+			fmt.Println("response Headers:", resp.Header)
+		}
+
 		body, _ := io.ReadAll(resp.Body)
-		fmt.Println("response Body:", string(body))
+
+		if config.Debug {
+			fmt.Println("response Body:", string(body))
+		}
 	}
 
 	return nil
