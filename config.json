@@ -1,0 +1,35 @@
+{
+    "version": "0.0.1",
+    "name": "external-mqtt-to-local",
+    "slug": "external-mqtt-to-local",
+    "description": "",
+    "startup": "application",
+    "boot": "auto",
+    "arch": [
+      "amd64",
+      "armv7",
+      "aarch64",
+      "i386"
+    ],
+    "init": false,
+    "options": {
+      "DEVICEID": "car",
+      "HOMEASSISTANTURL": "",
+      "HOMEASSISTANTTOKEN": "",
+      "BROKERURL": "",
+      "BROKERPORT": 1883,
+      "BROKERUSERNAME": "",
+      "BROKERPASSWORD": "",
+      "BROKERTOPIC": ""
+    },
+    "schema": {
+      "DEVICEID": "str",
+      "HOMEASSISTANTURL": "str",
+      "HOMEASSISTANTTOKEN": "str",
+      "BROKERURL": "str",
+      "BROKERPORT": "int",
+      "BROKERUSERNAME": "str",
+      "BROKERPASSWORD": "str",
+      "BROKERTOPIC": "str"
+    }
+}
