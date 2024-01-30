@@ -40,7 +40,10 @@ func processHomeassistant(haItem HAItem) error {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("request body:", string(jsonStr))
+	if config.Debug {
+		fmt.Println("request body:", string(jsonStr))
+	}
+
 	if resp.StatusCode != 200 {
 		if config.Debug {
 			fmt.Println("response Status:", resp.Status)

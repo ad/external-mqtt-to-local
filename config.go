@@ -61,6 +61,20 @@ func InitConfig() {
 		flag.Parse()
 	}
 
+	if config.HomeassistantToken == "" {
+		if val, ok := os.LookupEnv("SUPERVISOR_TOKEN"); ok {
+			config.HomeassistantToken = val
+			config.HomeassistantURL = "http://supervisor/core/api/services/device_tracker/see"
+			if config.Debug {
+				fmt.Printf("supervisor_token: %s\n", config.HomeassistantToken)
+			}
+		} else {
+			if config.Debug {
+				fmt.Println("supervisor token not set")
+			}
+		}
+	}
+
 	if config.HomeassistantURL == "" || config.HomeassistantToken == "" || config.BrokerURL == "" || config.BrokerPort == 0 {
 		log.Fatal("provide config data")
 	}

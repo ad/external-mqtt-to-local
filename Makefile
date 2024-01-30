@@ -1,4 +1,4 @@
-BUILD_VERSION=0.0.3
+BUILD_VERSION=$(shell cat config.json | awk 'BEGIN { FS="\""; RS="," }; { if ($$2 == "version") {print $$4} }')
 
 release: release_armhf release_aarch64 release_i386 release_amd64 release_armv7
 
