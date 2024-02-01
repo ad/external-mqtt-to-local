@@ -1,11 +1,10 @@
-package main
+package config
 
 import (
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strconv"
 )
@@ -24,12 +23,12 @@ type Config struct {
 	BrokerUsername string `json:"BROKERUSERNAME"`
 	BrokerPassword string `json:"BROKERPASSWORD"`
 	BrokerTopic    string `json:"BROKERTOPIC"`
-	Debug          bool   `json:"DEBUG"`
+
+	Debug bool `json:"DEBUG"`
 }
 
-var config = &Config{}
-
-func InitConfig() {
+func InitConfig() (*Config, error) {
+	var config = &Config{}
 	var initFromFile = false
 
 	if _, err := os.Stat(ConfigFileName); err == nil {
@@ -62,8 +61,10 @@ func InitConfig() {
 	}
 
 	if config.HomeassistantURL == "" || config.HomeassistantToken == "" || config.BrokerURL == "" || config.BrokerPort == 0 {
-		log.Fatal("provide config data")
+		return config, fmt.Errorf("%s", "provide config data")
 	}
+
+	return config, nil
 }
 
 func lookupEnvOrString(key, defaultVal string) string {
@@ -80,6 +81,7 @@ func lookupEnvOrInt(key string, defaultVal int) int {
 			return x
 		}
 	}
+
 	return defaultVal
 }
 
@@ -89,5 +91,6 @@ func lookupEnvOrBool(key string, defaultVal bool) bool {
 			return x
 		}
 	}
+
 	return defaultVal
 }
