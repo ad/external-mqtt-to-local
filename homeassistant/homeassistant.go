@@ -54,7 +54,7 @@ func (hs *HASender) ProcessHomeassistant(haItem *HAItem) error {
 	}
 	defer resp.Body.Close()
 
-	if config.Debug {
+	if hs.config.Debug {
 		fmt.Println("request body:", string(jsonStr))
 	}
 
