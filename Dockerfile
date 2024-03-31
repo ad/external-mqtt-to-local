@@ -1,45 +1,28 @@
-# STAGE 1: Build the binary
-FROM golang:alpine as build
+FROM golang:alpine AS builder
 
-# Build arguments
-ARG BUILD_ARCH
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
+
 ARG BUILD_VERSION
 
-# Install git for go get command and get the repo
-RUN \
-    apk update && apk add --no-cache ca-certificates && update-ca-certificates
-
 WORKDIR $GOPATH/src/app
-
-COPY . .
+COPY go.mod go.mod
+COPY go.sum go.sum
+COPY vendor vendor
+COPY config config
+COPY homeassistant homeassistant
+COPY listener listener
+COPY main.go main.go
 COPY config.json /config.json
+RUN go version
+RUN CGO_ENABLED=0 go build -mod vendor -ldflags="-w -s -X main.version=${BUILD_VERSION}" -o /go/bin/app .
 
-# Install dependencies and build the binary to target platform
-RUN \
-    if [ "${BUILD_ARCH}" = "armhf" ]; then \
-    GOOS=linux GOARCH=arm go build -o /go/bin/app; \
-    elif [ "${BUILD_ARCH}" = "armv7" ]; then \
-    GOOS=linux GOARM=7 GOARCH=arm go build -o /go/bin/app; \
-    elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
-    GOOS=linux GOARCH=arm64 go build -o /go/bin/app; \
-    elif [ "${BUILD_ARCH}" = "i386" ]; then \
-    GOOS=linux GOARCH=386 go build -o /go/bin/app; \
-    elif [ "${BUILD_ARCH}" = "amd64" ]; then \
-    GOOS=linux GOARCH=amd64 go build -o /go/bin/app; \
-    else \
-    echo 'NOT VALID BUILD'; exit 1; \
-    fi
-
-# STAGE 2: Include binary in target add-on container
-FROM scratch AS runtime
-
-# Copy binary and the config from build container
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=build /etc/passwd /etc/passwd
-COPY --from=build /etc/group /etc/group
-COPY --from=build /go/bin/app /go/bin/app
-COPY --from=build /config.json /config.json
-
+FROM scratch
+WORKDIR /app/
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+COPY config.json /config.json
+COPY --from=builder /go/bin/app /go/bin/app
 ENTRYPOINT ["/go/bin/app"]
 
 #
