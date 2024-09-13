@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	conf "github.com/ad/external-mqtt-to-local/config"
 	"github.com/ad/external-mqtt-to-local/homeassistant"
@@ -54,7 +55,12 @@ func InitListener(config *conf.Config, haSender *homeassistant.HASender) (*Liste
 	listener.Client = client
 
 	go listener.sub(client)
-	// go pub(client)
+
+	go func() {
+		for range time.Tick(time.Second * 30) {
+			pub(config, client)
+		}
+	}()
 
 	return listener, nil
 }
@@ -107,19 +113,16 @@ func (l *Listener) Disconnect() {
 	}
 }
 
-// func pub(client mqtt.Client) {
-// 	data := Data{
-// 		Type:      "location",
-// 		Batt:      50,
-// 		CreatedAt: time.Now().Unix(),
-// 		Lat:       0.00,
-// 		Lon:       0.00,
-// 	}
+func pub(config *conf.Config, client mqtt.Client) {
+	data := Data{
+		Type:      "ping",
+		CreatedAt: time.Now().Unix(),
+	}
 
-// 	result, errMarshal := json.Marshal(data)
-// 	if errMarshal != nil {
-// 		return
-// 	}
+	result, errMarshal := json.Marshal(data)
+	if errMarshal != nil {
+		return
+	}
 
-// 	client.Publish(config.BrokerTopic, 1, false, result).Wait()
-// }
+	client.Publish(config.BrokerTopic, 1, false, result).Wait()
+}
